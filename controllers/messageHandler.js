@@ -1,3 +1,5 @@
+const Order = require('../models/Order');
+
 const Groq = require('groq-sdk');
 const twilio = require('twilio');
 require('dotenv').config();
@@ -5,12 +7,7 @@ require('dotenv').config();
 const openai = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
-// Sample orders database (we'll replace with MongoDB later)
-const sampleOrders = {
-  'ORD001': { product: 'Rudraksha Mala', status: 'Out for Delivery', delivery: 'Today by 7 PM' },
-  'ORD002': { product: 'Brass Diya Set', status: 'Shipped', delivery: 'Tomorrow by 2 PM' },
-  'ORD003': { product: 'Ganesh Idol', status: 'Processing', delivery: 'In 2-3 days' },
-};
+
 
 // Sample products
 const sampleProducts = {
@@ -103,7 +100,7 @@ async function handleMessage(req, res) {
     // Step 2: Fetch relevant data
     let data = null;
     if (intent === 'order_status' && order_id) {
-      data = sampleOrders[order_id] || null;
+  data = await Order.findOne({ order_id: order_id }) || null;
     } else if (intent === 'product_query' && product_keyword) {
       data = sampleProducts[product_keyword.toLowerCase()] || null;
     }
